@@ -7,5 +7,4 @@ public class Department {
     private int id;
 
 
-
 }
