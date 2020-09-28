@@ -5,11 +5,11 @@ import models.Employee;
 import java.util.List;
 
 public interface EmployeeDao {
-    void add();
+    void add(Employee employee);
     void addEmployeeToDepartment(Employee employee, Department department);
 
     List<Employee> getAll();
-    List<Department> getAllDepartmentForAnEmployee(int id);
+    List<Department> getAllDepartmentsForAnEmployee(int id);
 
     Employee findById(int id);
 
