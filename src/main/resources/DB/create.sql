@@ -29,4 +29,4 @@ CREATE TABLE IF NOT EXISTS departments_employees (
  id int PRIMARY KEY auto_increment,
  employeeid INTEGER,
   departmentid INTEGER
-);`
+);
