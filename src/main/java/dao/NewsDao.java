@@ -7,7 +7,7 @@ import models.News;
 public interface NewsDao {
     //Create methods
     void add(News news);
-    void addNewsToDepartment(News news, Department department);
+   // void addNewsToDepartment(News news, Department department);
 
     //Read methods
     List<News> getAll();                    // gets all news
