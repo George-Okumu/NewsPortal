@@ -9,7 +9,7 @@ public interface EmployeeDao {
     void addEmployeeToDepartment(Employee employee, Department department);
 
     List<Employee> getAll();
-    List<Department> getAllEmployeesForADepartment(int id);
+    List<Department> getAllDepartmentForAnEmployee(int id);
 
     Employee findById(int id);
 
