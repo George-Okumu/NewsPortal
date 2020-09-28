@@ -46,11 +46,12 @@ public class Sql2oEmployeeDao implements EmployeeDao {
 
     @Override
     public List<Employee> getAll() {
-        try(Connection con = sql2o.open()){
+        try (Connection con = sql2o.open()) {
             return con.createQuery("SELECT * FROM employees")
                     .executeAndFetch(Employee.class);
         }
     }
+
 
     @Override
     public List<Department> getAllDepartmentsForAnEmployee(int employeeId) {

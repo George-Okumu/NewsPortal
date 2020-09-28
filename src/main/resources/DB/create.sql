@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS news (
 
 CREATE TABLE IF NOT EXISTS employees (
  id int PRIMARY KEY auto_increment,
- UserName VARCHAR,
+ employeeName VARCHAR,
  position VARCHAR,
  role VARCHAR,
  email VARCHAR,
