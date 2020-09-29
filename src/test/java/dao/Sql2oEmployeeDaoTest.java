@@ -2,7 +2,6 @@ package dao;
 
 import models.Department;
 import models.Employee;
-import models.News;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -12,7 +11,7 @@ import org.sql2o.Sql2o;
 
 import static org.junit.Assert.*;
 
-public class Sql2oNewsDaoTest {
+public class Sql2oEmployeeDaoTest {
     private static Connection conn;
     private static Sql2oEmployeeDao employeeDao;
     private static Sql2oDepartmentDao departmentDao;
@@ -43,14 +42,36 @@ public class Sql2oNewsDaoTest {
     }
 
     @Test
-    public void addedNewsAreReturnedFromGetAll() throws Exception {
-        News testNews = setUpNews();
-        newsDao.add(testNews);
-        assertEquals(0, newsDao.getAll().size());
+    public void addedEmployeeAreReturnedFromGetAll() throws Exception {
+        Employee testemployee = setUpNewEmployee();
+        employeeDao.add(testemployee);
+        assertEquals(0, employeeDao.getAll().size());
+    }
+
+    @Test
+    public void addEmployeeToDepartmentAddsTypeCorrectly() throws Exception {
+
+        Department testDepartment = setUpNewDepartment();
+
+        departmentDao.add(testDepartment);
+
+
+        Employee testEmployee = setUpNewEmployee();
+
+        employeeDao.add(testEmployee);
+
+        employeeDao.addEmployeeToDepartment(testEmployee, testDepartment);
+        assertEquals(0, employeeDao.getAllDepartmentsForAnEmployee(testEmployee.getId()).size());
+    }
+
+    //helper for tests
+    public Employee setUpNewEmployee(){
+        return new Employee("George","Staff", "Managerial Staff", "gokumu12@gmail.com","0798765432",10);
+    }
+
+    public Department setUpNewDepartment(){
+        return new Department("Bamburi Cement", "Production of cement", 2250);
     }
 
 
-    public News setUpNews(){
-        return new News ("Salary", "We are underPayed", 2);
-    }
 }

@@ -22,8 +22,9 @@ public class App {
         Sql2oNewsDao newsDao;
         Connection conn;
         Gson gson = new Gson();
-        String connectionString = "jdbc:h2:~/news-portal.DB;INIT=RUNSCRIPT from 'classpath:DB/create.sql'";
-        Sql2o sql2o = new Sql2o(connectionString, "", "");
+        staticFileLocation("/public");
+        String connectionString = "jdbc:postgresql://localhost:5432/news_portal";
+        Sql2o sql2o = new Sql2o(connectionString, "moringa", "Georgedatabase1");
 
         departmentDao = new Sql2oDepartmentDao(sql2o);
         employeeDao = new Sql2oEmployeeDao(sql2o);
@@ -78,7 +79,7 @@ public class App {
             int employeeId = Integer.parseInt(request.params("id"));
             Employee employeeToFind = employeeDao.findById(employeeId);
             if (employeeToFind == null){
-                throw new Error(String.format("No employee exist in this department");
+                throw new Error(String.format("No employee exist in this department"));
             }
             else if (employeeDao.getAllDepartmentsForAnEmployee(employeeId).size()==0){
                 return "{\"message\":\"I'm sorry, but no department exists for this employee.\"}";

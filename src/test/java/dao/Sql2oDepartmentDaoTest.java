@@ -1,7 +1,6 @@
 package dao;
 
 import models.Department;
-import models.Employee;
 import models.News;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -12,7 +11,8 @@ import org.sql2o.Sql2o;
 
 import static org.junit.Assert.*;
 
-public class Sql2oNewsDaoTest {
+public class Sql2oDepartmentDaoTest {
+
     private static Connection conn;
     private static Sql2oEmployeeDao employeeDao;
     private static Sql2oDepartmentDao departmentDao;
@@ -37,20 +37,21 @@ public class Sql2oNewsDaoTest {
     }
 
     @AfterClass
-    public static void shutDown() throws Exception{ //changed to static
+    public static void shutDown() throws Exception{
         conn.close();
         System.out.println("connection closed");
     }
 
-    @Test
-    public void addedNewsAreReturnedFromGetAll() throws Exception {
-        News testNews = setUpNews();
-        newsDao.add(testNews);
-        assertEquals(0, newsDao.getAll().size());
+//    @Test
+//    public void findByIdReturnsCorrectDepartment() throws Exception {
+//        Department testDepartment = setUpNewDepartment();
+//        Department otherDepartment = setUpNewDepartment();
+//        assertEquals(otherDepartment, departmentDao.findById(testDepartment.getId()));
+//    }
+
+    public Department setUpNewDepartment(){
+        return new Department("Bamburi Cement", "Production of cement", 2250);
     }
 
 
-    public News setUpNews(){
-        return new News ("Salary", "We are underPayed", 2);
-    }
 }
