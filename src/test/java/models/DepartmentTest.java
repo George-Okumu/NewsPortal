@@ -57,8 +57,8 @@ public class DepartmentTest {
     @Test
     public void department_setsDepartmentsNumberOfEmployees() throws  Exception {
         Department testDepartment = setUpNewDepartment();
-        testDepartment.setNumberOfEmployees(2250);
-        assertNotEquals(1050, testDepartment.getNumberOfEmployees());
+        testDepartment.setNumberOfEmployees("2250");
+        assertNotEquals("1050", testDepartment.getNumberOfEmployees());
     }
 
     @Test
@@ -70,7 +70,7 @@ public class DepartmentTest {
 
     //helper method for testing
     public Department setUpNewDepartment(){
-        return new Department("Bamburi Cement", "Production of cement", 2250);
+        return new Department("Bamburi Cement", "Production of cement", "4567");
     }
 
 }

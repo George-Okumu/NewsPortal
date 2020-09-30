@@ -1,3 +1,4 @@
+
 import com.google.gson.Gson;
 import dao.Sql2oDepartmentDao;
 import dao.Sql2oEmployeeDao;
@@ -16,13 +17,24 @@ import java.util.Map;
 import static spark.Spark.*;
 
 public class App {
+    static int getHerokuAssignedPort() {
+        ProcessBuilder processBuilder = new ProcessBuilder();
+        if (processBuilder.environment().get("PORT") != null) {
+            return Integer.parseInt(processBuilder.environment().get("PORT"));
+        }
+        return 4567; //return default port if heroku-port isn't set (i.e. on localhost)
+    }
+
     public static void main(String[] args) {
+        port(getHerokuAssignedPort());
+        staticFileLocation("/public");
+
         Sql2oDepartmentDao departmentDao;
         Sql2oEmployeeDao employeeDao;
         Sql2oNewsDao newsDao;
         Connection conn;
         Gson gson = new Gson();
-        staticFileLocation("/public");
+//        staticFileLocation("/public");
         String connectionString = "jdbc:postgresql://localhost:5432/news_portal";
         Sql2o sql2o = new Sql2o(connectionString, "moringa", "Georgedatabase1");
 
@@ -31,23 +43,47 @@ public class App {
         newsDao = new Sql2oNewsDao(sql2o);
         conn = sql2o.open();
 
+        get("/", "application/json", (req, res) ->
+                "{\"message\":\"Hello, Looking for a news API ! WELCOME to NEWS-PORTAL-API mainpage.\"}");
+
+
+        //Getting all departments
+        get("/departments", "application/json", (req, res) -> {
+            System.out.println(departmentDao.getAll());
+
+            if(departmentDao.getAll().size() > 0){
+                return gson.toJson(departmentDao.getAll());
+            }
+
+            else {
+                return "{\"message\":\"I'm sorry, but no departments are currently listed in the database.\"}";
+            }
+
+        });
+
+        get("departments/:id", "application/json", (request, response) -> {
+            int target = Integer.parseInt(request.params("id"));
+            Department department = departmentDao.findById(target);
+            if(department != null){
+                return gson.toJson(department);
+            }else{
+                throw new Error("Department with that Id does not exist");
+            }
+        });
+
+
         //Getting news
         get("/news", "application/json", (request, response) -> {
             return gson.toJson(newsDao.getAll());
         });
 
-        //gets all department information
-        get("/departments", "application/json", (request, response) -> {
-            System.out.println(departmentDao.getAll());
-            return gson.toJson(departmentDao.getAll());
-        });
 
         // get all employee details
         get("/employees", "application/json", (request, response) -> {
             return gson.toJson(employeeDao.getAll());
         });
 
-
+        // Getting each employer
         get("employees/:id", "application/json", (request, response) -> {
             int target = Integer.parseInt(request.params("id"));
             Employee employee = employeeDao.findById(target);
@@ -58,40 +94,25 @@ public class App {
             }
         });
 
-        //getting each news that belongs to a department
-        get("/departments/:id/news", "application/json", (request, response) -> {
-            int departmentId = Integer.parseInt(request.params("id"));
+
+        get("/departments/:id/employees", "application/json", (req, res) -> {
+            int departmentId = Integer.parseInt(req.params("id"));
 
             Department departmentToFind = departmentDao.findById(departmentId);
-            List<News> allNews;
+            List<Department> departmentEmployees;
 
-            if (departmentToFind == null){
-                throw new ApiException(404, String.format("That department does not exists", request.params("id")));
+            if (departmentToFind == null) {
+                throw new ApiException(404, String.format("No department with the id: \"%s\" exists", req.params("id")));
             }
 
-            allNews = newsDao.getAllNewsByDepartment(departmentId);
-
-            return gson.toJson(allNews);
-        });
-
-        //getting an employee from a department
-        get("/employees/:id/departments", "application/json", (request, response) -> {
-            int employeeId = Integer.parseInt(request.params("id"));
-            Employee employeeToFind = employeeDao.findById(employeeId);
-            if (employeeToFind == null){
-                throw new Error(String.format("No employee exist in this department"));
-            }
-            else if (employeeDao.getAllDepartmentsForAnEmployee(employeeId).size()==0){
-                return "{\"message\":\"I'm sorry, but no department exists for this employee.\"}";
-            }
-            else {
-                return gson.toJson(employeeDao.getAllDepartmentsForAnEmployee(employeeId));
-            }
+            departmentEmployees = employeeDao.getAllDepartmentsForAnEmployee(departmentId);
+            res.type("application/json");
+            return gson.toJson(departmentEmployees);
         });
 
 
-        //Posts all department information
-        post("/departments/new", "application/json", (request, response) -> {
+        //post:Add department
+        post("/departments/new", "application/json", (request, response)->{
             Department department = gson.fromJson(request.body(), Department.class);
             departmentDao.add(department);
             response.status(201);
@@ -99,7 +120,8 @@ public class App {
         });
 
 
-        //Posts all Employee details
+
+       // Posts all Employee details
 
         post("/employees/new", "application/json", (request, response) ->{
             Employee employee = gson.fromJson(request.body(), Employee.class);
@@ -118,45 +140,17 @@ public class App {
         });
 
 
-        //Posting all news to a specific department
-        post("/departments/:departmentsId/news/new", "application/json", (request, response) -> {
-            int departmentId = Integer.parseInt(request.params("departmentsId"));
-            News news = gson.fromJson(request.body(), News.class);
-            news.setDepartmentId(departmentId);
-            newsDao.add(news);
-            response.status(201);
-            return gson.toJson(news);
-        });
-
-        //Adding employee to a specific department
-        post("/departments/:departmentsId/employee/:employeeId", "application/json", (request, response) -> {
-            int departmentId = Integer.parseInt(request.params("departmentId"));
-            int employeeId = Integer.parseInt(request.params("employeeId"));
-            Department department = departmentDao.findById(departmentId);
-            Employee employee = employeeDao.findById(employeeId);
-
-            if (department != null && employee != null){
-                //both exist and can be associated - we should probably not connect things that are not here.
-                employeeDao.addEmployeeToDepartment(employee, department);
-                response.status(201);
-                return gson.toJson(String.format("Employee '%s' works at '%s' ",department.getDepartmentName(), employee.getEmployeeName()));
-            }
-            else {
-                throw new Error("Department does not exist");
-            }
-        });
-
 
 
      // Filters
-        exception(ApiException.class, (exc, req, res) -> {
+        exception(ApiException.class, (exc, request, response) -> {
             ApiException err = exc;
             Map<String, Object> jsonMap = new HashMap<>();
             jsonMap.put("status", err.getStatusCode());
             jsonMap.put("errorMessage", err.getMessage());
-            res.type("application/json"); //after does not run in case of an exception.
-            res.status(err.getStatusCode()); //set the status
-            res.body(gson.toJson(jsonMap));  //set the output.
+            response.type("application/json"); //after does not run in case of an exception.
+            response.status(err.getStatusCode()); //set the status
+            response.body(gson.toJson(jsonMap));  //set the output.
         });
 
         after((request, response) ->{

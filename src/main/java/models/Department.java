@@ -5,10 +5,10 @@ import java.util.Objects;
 public class Department {
     private String departmentName;
     private String description;
-    private int numberOfEmployees;
+    private String numberOfEmployees;
     private int id;
 
-    public Department(String departmentName, String description, int numberOfEmployees) {
+    public Department(String departmentName, String description, String numberOfEmployees) {
         this.departmentName = departmentName;
         this.description = description;
         this.numberOfEmployees = numberOfEmployees;
@@ -30,11 +30,11 @@ public class Department {
         this.description = description;
     }
 
-    public int getNumberOfEmployees() {
+    public String getNumberOfEmployees() {
         return numberOfEmployees;
     }
 
-    public void setNumberOfEmployees(int numberOfEmployees) {
+    public void setNumberOfEmployees(String numberOfEmployees) {
         this.numberOfEmployees = numberOfEmployees;
     }
 
@@ -51,10 +51,10 @@ public class Department {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Department that = (Department) o;
-        return numberOfEmployees == that.numberOfEmployees &&
-                id == that.id &&
+        return id == that.id &&
                 departmentName.equals(that.departmentName) &&
-                description.equals(that.description);
+                description.equals(that.description) &&
+                numberOfEmployees.equals(that.numberOfEmployees);
     }
 
     @Override
